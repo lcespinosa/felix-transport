@@ -15,6 +15,8 @@ jobs:
           start: npm start
           record: true
         env:
+          # pass the Dashboard record key as an environment variable
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           # pass GitHub token to detect new build vs re-run build
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           # overwrite commit message sent to Dashboard
