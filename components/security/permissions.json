@@ -1,0 +1,10 @@
+{
+  "users": [
+    {
+      "email": "admin@b53.es",
+      "canAccess": [
+        "*"
+      ]
+    }
+  ]
+}
