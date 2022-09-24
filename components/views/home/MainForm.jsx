@@ -16,6 +16,7 @@ import {useEffect, useState} from "react";
 import useDailyReportsQuery from "../../../hooks/useDailyReportsQuery";
 import {addDailyReportDocument} from "../../../services/daily_report.service";
 import {useAuth} from "../../../context/AuthContext";
+import useTotalWeekHours from "../../../hooks/useTotalWeekHours";
 
 export default function MainForm() {
   const {user} = useAuth();
@@ -33,7 +34,7 @@ export default function MainForm() {
       active: isToday(date),
     }
   });
-  const [day, setDay] = useState(weekDayOptions.find(d => d.active)?.label);
+  const [day, setDay] = useState(weekDayOptions.find(d => d.active)?.label || weekDayOptions[0].label);
 
   const year = format(startOfYear(today), 'yyyy');
   const quarter = format(startOfQuarter(today), 'q');
@@ -46,7 +47,6 @@ export default function MainForm() {
     depart: '',
     retour: '',
   });
-  console.log(day);
   const [result, loading, error] = useDailyReportsQuery(year, quarter, week, day, user);
   useEffect(() => {
     if (!loading && result) {
@@ -67,7 +67,6 @@ export default function MainForm() {
   }
   const handleInputChange = (e) => {
     const {name: prop, value} = e.target;
-    console.log('change', prop, value)
     setModel({
       ...model,
       [prop]: value,
@@ -75,6 +74,7 @@ export default function MainForm() {
   }
   const km_total = model.odo_last - model.odo_init;
   const heures = differenceInHours(parse(model.retour, 'HH:mm', today), parse(model.depart, 'HH:mm', today)) || 0;
+  const totalHeures = useTotalWeekHours(year, quarter, week, user);
 
   const handleOnSubmit = (e) => {
     e.preventDefault();
@@ -93,6 +93,7 @@ export default function MainForm() {
           <h3 className="text-lg font-medium leading-6 text-gray-900">Day Report</h3>
           <p className="mt-1 max-w-2xl text-sm text-gray-500">Trimestre: {startOfQuarterDate}</p>
           <p className="mt-1 max-w-2xl text-sm text-gray-500">Semaine de: {startOfWeekDate} a {endOfWeekDate}</p>
+          <p className="mt-1 max-w-2xl text-sm text-gray-500">Heures Semaine: {totalHeures}</p>
           <div className="mt-1 max-w-2xl text-sm text-gray-500">
             <label htmlFor="week_day" className="block text-sm font-medium text-gray-700">
               Day

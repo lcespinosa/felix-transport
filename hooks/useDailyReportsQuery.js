@@ -25,7 +25,6 @@ export default function useDailyReportsQuery(year, quarter, week, day, user) {
         );
         const querySnapshot = await getDocs(q);
         const data = querySnapshot.docs.map(doc => doc.data());
-        console.log(data)
         setResult(data[0]);
         setLoading(false);
         setError(false);
