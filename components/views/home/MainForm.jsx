@@ -40,6 +40,7 @@ export default function MainForm() {
   const quarter = format(startOfQuarter(today), 'q');
   const week = format(startOfWeek(today, {weekStartsOn: 1}), 'w');
   const [model, setModel] = useState({
+    id: null,
     odo_init: "",
     odo_last: "",
     qte_clients: "",
@@ -48,9 +49,11 @@ export default function MainForm() {
     retour: '',
   });
   const [result, loading, error] = useDailyReportsQuery(year, quarter, week, day, user);
+  console.log(result)
   useEffect(() => {
     if (!loading && result) {
       setModel({
+        id: result?.docId,
         odo_init: result?.odo_init,
         odo_last: result?.odo_last,
         qte_clients: result?.qte_clients,
