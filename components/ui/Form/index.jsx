@@ -1,7 +1,7 @@
 import Button from "../Button";
 
-export default function Form(props) {
-  return <form className="space-y-8 divide-y divide-gray-200">
+export default function Form({onSubmit, ...props}) {
+  return <form className="space-y-8 divide-y divide-gray-200" onSubmit={onSubmit}>
     <>
       <div className="space-y-8 divide-y divide-gray-200 sm:space-y-5">
         {props.children}
