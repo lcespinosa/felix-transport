@@ -5,7 +5,7 @@ const CONSTANTS = {
   },
   USERS: [
     {
-      email: 'admin@felix.ca',
+      email: 'admin@b53.es',
       role: 'admin',
       route: '-',
     },
