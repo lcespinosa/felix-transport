@@ -12,23 +12,13 @@ import {
   startOfQuarter,
   startOfYear
 } from "date-fns";
-import {useState} from "react";
-import {useCollection} from "react-firebase-hooks/firestore";
-import {dbInstance} from "../../../lib/firebaseConfig";
-import {query, where} from "firebase/firestore";
+import {useEffect, useState} from "react";
+import useDailyReportsQuery from "../../../hooks/useDailyReportsQuery";
+import {addDailyReportDocument} from "../../../services/daily_report.service";
+import {useAuth} from "../../../context/AuthContext";
 
 export default function MainForm() {
-
-  const collection = dbInstance("daily_reports");
-  // Create a query against the collection.
-  const q = query(collection, where("userId", "!=", "-"));
-  const [daily_reports, daily_reportsLoading, daily_reportsError] = useCollection(
-    q,
-    {}
-  );
-  if (!daily_reportsLoading && daily_reports) {
-    daily_reports.docs.map((doc) => console.log(doc.data()));
-  }
+  const {user} = useAuth();
 
   const today = new Date;
   const startOfWeekDayDate = startOfWeek(today, {weekStartsOn: 1});
@@ -43,11 +33,12 @@ export default function MainForm() {
       active: isToday(date),
     }
   });
+  const [day, setDay] = useState(weekDayOptions.find(d => d.active)?.label);
 
+  const year = format(startOfYear(today), 'yyyy');
+  const quarter = format(startOfQuarter(today), 'q');
+  const week = format(startOfWeek(today, {weekStartsOn: 1}), 'w');
   const [model, setModel] = useState({
-    year: format(startOfYear(today), 'yyyy'),
-    quarter: format(startOfQuarter(today), 'q'),
-    week: format(startOfWeek(today, {weekStartsOn: 1}), 'w'),
     odo_init: "",
     odo_last: "",
     qte_clients: "",
@@ -55,9 +46,28 @@ export default function MainForm() {
     depart: '',
     retour: '',
   });
+  console.log(day);
+  const [result, loading, error] = useDailyReportsQuery(year, quarter, week, day, user);
+  useEffect(() => {
+    if (!loading && result) {
+      setModel({
+        odo_init: result?.odo_init,
+        odo_last: result?.odo_last,
+        qte_clients: result?.qte_clients,
+        qte_retour: result?.qte_retour,
+        depart: result?.depart,
+        retour: result?.retour,
+      });
+    }
+  }, [result, loading, error]);
 
+  const handleDayChange = (e) => {
+    const {value} = e.target;
+    setDay(value);
+  }
   const handleInputChange = (e) => {
-    const {id: prop, value} = e.target;
+    const {name: prop, value} = e.target;
+    console.log('change', prop, value)
     setModel({
       ...model,
       [prop]: value,
@@ -69,6 +79,11 @@ export default function MainForm() {
   const handleOnSubmit = (e) => {
     e.preventDefault();
 
+    addDailyReportDocument(year, quarter, week, day, user.email, {
+      ...model,
+      heures,
+      km_total,
+    });
   }
 
   return (
@@ -86,11 +101,12 @@ export default function MainForm() {
               id="week_day"
               name="week_day"
               className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-              defaultValue={weekDayOptions.find(d => d.active)?.label || ""}
+              value={day}
+              onChange={handleDayChange}
             >
               {
                 weekDayOptions.map((opt, index) =>
-                  <option key={index} value={opt.value}>{opt.label}</option>
+                  <option key={index} value={opt.label}>{opt.label}</option>
                 )
               }
             </select>
@@ -105,7 +121,7 @@ export default function MainForm() {
               <input
                 required
                 type="number"
-                name="odometre_init"
+                name="odo_init"
                 id="odometre-init"
                 value={model.odo_init}
                 onChange={handleInputChange}
@@ -122,7 +138,7 @@ export default function MainForm() {
               <input
                 required
                 type="number"
-                name="odometre_last"
+                name="odo_last"
                 id="odometre-last"
                 value={model.odo_last}
                 onChange={handleInputChange}
