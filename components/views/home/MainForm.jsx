@@ -94,7 +94,7 @@ export default function MainForm() {
       <div className="space-y-6 sm:space-y-5">
         <div>
           <h3 className="text-lg font-medium leading-6 text-gray-900">Day Report</h3>
-          <p className="mt-1 max-w-2xl text-sm text-gray-500">Route: {user.route}</p>
+          <p className="mt-1 font-medium max-w-2xl text-sm text-gray-500">Route: {user.route}</p>
           <p className="mt-1 max-w-2xl text-sm text-gray-500">Trimestre: {startOfQuarterDate}</p>
           <p className="mt-1 max-w-2xl text-sm text-gray-500">Semaine de: {startOfWeekDate} a {endOfWeekDate}</p>
           <p className="mt-1 max-w-2xl text-sm text-gray-500">Heures Semaine: {totalHeures}</p>
